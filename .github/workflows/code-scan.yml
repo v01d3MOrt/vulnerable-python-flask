@@ -25,11 +25,10 @@ jobs:
 
     - name: Run Bandit security scan
       uses: mdegis/bandit-action@v1.0
-      with:
-        python-version: '3.12'
       id: bandit_scan
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         path: "."
         confidence: high
         exit_zero: true
+        python-version: '3.12'
