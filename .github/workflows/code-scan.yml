@@ -24,11 +24,9 @@ jobs:
       run: poetry install 
 
     - name: Run Bandit security scan
-      uses: mdegis/bandit-action@v1.0
-      id: bandit_scan
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: shundor/bandit-action@v1
+      with: 
         path: "."
+        level: high
         confidence: high
         exit_zero: true
-        python-version: '3.12'
