@@ -35,4 +35,4 @@ def index():
 
 if __name__ == '__main__':
     # vulnerable code 2
-    # app.run(debug=True)
+    app.run(debug=True)

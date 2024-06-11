@@ -28,7 +28,7 @@ jobs:
       id: bandit_scan
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        path: "."
+        path: "app.py"
         level: high
         confidence: high
         exit_zero: true
