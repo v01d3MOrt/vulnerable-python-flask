@@ -26,12 +26,12 @@ jobs:
     - name: Run Bandit security scan
       uses: mdegis/bandit-action@v1.0
       id: bandit_scan
+      run: |
+        ls -la
+        pwd
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         path: "."
         level: high
         confidence: high
         exit_zero: true
-        run: |
-        ls -la
-        pwd
