@@ -11,7 +11,7 @@ def index():
         output = os.popen(command).read()
 
         # Vulnerable code 1 fix 
-        output = os.popen(command).read()
+        # output = os.popen(command).read()
         return render_template_string('''
             <!doctype html>
             <title>Command Injection</title>
