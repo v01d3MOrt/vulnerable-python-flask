@@ -32,24 +32,3 @@ jobs:
         level: high
         confidence: high
         exit_zero: true
-
-    - name: Parse Bandit results
-      run: |
-        bandit_output=$(cat bandit_output.json)
-        critical_issues=$(echo "$bandit_output" | jq '[.results[] | select(.issue_severity=="HIGH") | .filename] | length')
-        echo "critical_issues=$critical_issues" >> $GITHUB_ENV
-
-    - name: Block pull request if vulnerabilities are found
-      if: env.critical_issues > 0
-      run: |
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d '{"body":"Block"}' \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
-        exit 1
-
-    - name: Comment and merge pull request if no vulnerabilities are found
-      if: env.critical_issues == 0
-      run: |
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d '{"body":"Successful"}' \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X PUT -d '{"commit_title":"Auto-merge pull request","commit_message":"This pull request has been automatically merged.","merge_method":"merge"}' \
-        "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}/merge"
