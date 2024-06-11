@@ -21,14 +21,14 @@ jobs:
       run: curl -sSL https://install.python-poetry.org | python3 -
 
     - name: Install dependencies
-      run: poetry install
+      run: poetry install 
+
+    - name: Parse Bandit results
+      run: ls -la & pwd
 
     - name: Run Bandit security scan
       uses: mdegis/bandit-action@v1.0
       id: bandit_scan
-      run: |
-        ls -la
-        pwd
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         path: "."
