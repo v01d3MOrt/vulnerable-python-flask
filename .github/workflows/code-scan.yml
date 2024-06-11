@@ -6,6 +6,11 @@ on:
 
 jobs:
   security_scan:
+    permissions:
+        contents: read # for actions/checkout to fetch code
+        security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+        actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    
     runs-on: ubuntu-latest
 
     steps:
@@ -21,35 +26,28 @@ jobs:
       run: curl -sSL https://install.python-poetry.org | python3 -
 
     - name: Install dependencies
-      run: poetry install
+      run: poetry install 
 
-    - name: Run Bandit security scan
-      uses: mdegis/bandit-action@v1.0
-      id: bandit_scan
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        path: "."
-        level: high
-        confidence: high
-        exit_zero: true
+    - name: Bandit Scan
+      uses: shundor/python-bandit-scan@9cc5aa4a006482b8a7f91134412df6772dbda22c
+      with: # optional arguments
+        # exit with 0, even with results found
+        exit_zero: true # optional, default is DEFAULT
+        # Github token of the repository (automatically created by Github)
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information.
+        # File or directory to run bandit on
+        # path: # optional, default is .
+        # Report only issues of a given severity level or higher. Can be LOW, MEDIUM or HIGH. Default is UNDEFINED (everything)
+        # level: # optional, default is UNDEFINED
+        # Report only issues of a given confidence level or higher. Can be LOW, MEDIUM or HIGH. Default is UNDEFINED (everything)
+        # confidence: # optional, default is UNDEFINED
+        # comma-separated list of paths (glob patterns supported) to exclude from scan (note that these are in addition to the excluded paths provided in the config file) (default: .svn,CVS,.bzr,.hg,.git,__pycache__,.tox,.eggs,*.egg)
+        # excluded_paths: # optional, default is DEFAULT
+        # comma-separated list of test IDs to skip
+        # skips: # optional, default is DEFAULT
+        # path to a .bandit file that supplies command line arguments
+        # ini_path: # optional, default is DEFAULT
 
-    - name: Parse Bandit results
-      run: |
-        bandit_output=$(cat bandit_output.json)
-        critical_issues=$(echo "$bandit_output" | jq '[.results[] | select(.issue_severity=="HIGH") | .filename] | length')
-        echo "critical_issues=$critical_issues" >> $GITHUB_ENV
+      
 
-    - name: Block pull request if vulnerabilities are found
-      if: env.critical_issues > 0
-      run: |
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d '{"body":"Block"}' \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
-        exit 1
-
-    - name: Comment and merge pull request if no vulnerabilities are found
-      if: env.critical_issues == 0
-      run: |
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X POST -d '{"body":"Successful"}' \
-        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments"
-        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X PUT -d '{"commit_title":"Auto-merge pull request","commit_message":"This pull request has been automatically merged.","merge_method":"merge"}' \
-        "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}/merge"
+        
