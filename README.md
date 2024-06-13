@@ -11,9 +11,12 @@ Vulnerable app and github action run bandit scan. It has script to fetch issues 
 
 ## Fetch the issues from Github code scanning 
 
+
+```bash
 export GITHUB_TOKEN='your_personal_access_token'
 export REPO_OWNER='repo_owner'
 export REPO_NAME='repo_name'
+```
 
 ### Run the script
 
